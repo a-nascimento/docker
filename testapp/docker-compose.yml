@@ -1,24 +1,31 @@
 version: '3'
 services:
-  web:
-    image: <repo>/<repo name>:<tag>
+  testapp:
+    image: andrewnascimento/personal:testapp-v1
     deploy:
+      com.testapp.description: "This is a test app"
       replicas: 2   # how many containers
       restart_policy: 
         condition: on-failure # condition to restart
       resources:
         limits:
-          cpus: "0.1"    # how much cpu
+          cpus: "0.2"    # how much cpu
           memory: 50M    # how much ram
     build: .
     ports:
-      - "5000:5000"
+      - "8000:80"
     volumes:
       - .:/code
       - logvolume01:/var/log
     networks:
-     - <net name>    # network name
+     - testapp_net    # network name
 volumes:
   logvolume01: {}
 networks:
-  <net name>:
+  testapp_net:
+dns:
+  - <server 1>
+  - <server 2>
+dns_search:
+  - example.com
+  - example2.com
