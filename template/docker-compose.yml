@@ -1,0 +1,24 @@
+version: '3'
+services:
+  web:
+    image: <repo>/<name>:<tag>
+    deploy:
+      replicas: 2   # how many containers
+      restart_policy: 
+        condition: on-failure # condition to restart
+      resources:
+        limits:
+          cpus: "0.1"    # how much cpu
+          memory: 50M    # how much ram
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - .:/code
+      - logvolume01:/var/log
+    networks:
+     - <net name>    # network name
+volumes:
+  logvolume01: {}
+networks:
+  <net name>:
