@@ -42,3 +42,4 @@ docker-machine rm default
 create Dockerfile
 docker build <name> <dir>   # build from Dockerfile directory and tagging a name [ex. docker build andrewnascimento/test .]
 
+# Dockerfile ENTRYPOINT vs COMMAND instruction
