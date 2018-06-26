@@ -42,4 +42,13 @@ docker-machine rm default
 create Dockerfile
 docker build <name> <dir>   # build from Dockerfile directory and tagging a name [ex. docker build andrewnascimento/test .]
 
-# Dockerfile ENTRYPOINT vs COMMAND instruction
+# Helpful
+docker network ls
+docker network create --driver bridge my-network
+
+# bridge networks do not allow container linking (container linking [via --link] is deprecated)
+# there is also overlay network
+
+# data volumes (the -v will create a local volume for the data to persist through when the container is killed)
+docker run -d -p 5984:5984 -v $(pwd)/data:/usr/local/var/lib/couchdb --name new-couchdb klaemo/couchdb
+# data volume containers
