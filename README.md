@@ -49,6 +49,24 @@ docker network create --driver bridge my-network
 # bridge networks do not allow container linking (container linking [via --link] is deprecated)
 # there is also overlay network
 
-# data volumes (the -v will create a local volume for the data to persist through when the container is killed)
+# data volumes (the -v will create a local volume for the data to persist through when the container is killed) - sharing volume between containers
 docker run -d -p 5984:5984 -v $(pwd)/data:/usr/local/var/lib/couchdb --name new-couchdb klaemo/couchdb
-# data volume containers
+
+## DIDN'T WORK IN EXAMPLE - must be versioning
+# data volume containers - docker containers that house a volume to be shared between containers
+docker create -v /usr/local/var/lib/couchdb --name db-data debian:jessie /bin/true
+# won't show in $(docker ps) [will show in $(docker ps -a)]
+docker ps -a
+docker run -d -p 5984:5984 -v /usr/local/var/lib/couchdb --name db1 --volmes-from db-data klaemo/couchdb
+docker run -d -p 5985:5984 -v /usr/local/var/lib/couchdb --name db2 --volumes-from db-data klaemo/couchdb
+curl -X PUT http://192.168.99.100:5984/db
+curl -H 'Content-Type: application/json' -X POST http://192.168.99.100:5984/db -d '{"value": "Hello OReilly"}'
+curl http://192.168.99.100:5985/db/faeed6d7f714f9c140a0d5e98a00049e
+## flocker? 
+
+## Docker-compose
+docker-compose up   # starts all containers controlled by specific compose file
+docker-compose stop # stops all containers controlled by specific compose file
+docker-compose rm   # kills all containers controlled by specific compose file
+docker-compose up -d   # detached start of all containers controlled by specific compose file
+
