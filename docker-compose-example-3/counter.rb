@@ -1,3 +1,5 @@
+require 'rubygems'
+require 'rubygem-json'
 require 'sinatra'
 require 'redis'
 

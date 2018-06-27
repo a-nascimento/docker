@@ -70,3 +70,44 @@ docker-compose stop # stops all containers controlled by specific compose file
 docker-compose rm   # kills all containers controlled by specific compose file
 docker-compose up -d   # detached start of all containers controlled by specific compose file
 
+# docker-swarm-example
+# swarm
+# Run containers across multiple docker hosts
+# need backing keyvalue storage mechanism to keep track of nodes - console, etcd, zookeeper
+docker-machine create --driver virtualbox
+eval $(docker-machine env default)
+docker run -d -p 2181:2181 --name zookeeper jplock/zookeeper
+docker run -d -p 3376:3376 --name manager -t -v /var/lib/boot2docker:/certs:ro swarm manage -H tcp://0.0.0.0:3376 -tlsverify --tlscacert=/carts/ca.pem --tlscert==/certs/server.pem --tlskey=/certs/server-key.pem zk://192.168.99.100:2181
+docker-machine create --driver virtualbox node1
+eval $(docker-machine env default)
+docker run -d swarm join --addr $(docker-machine ip node1):2376 zk://192.168.99.100:2181
+docker-machine create --driver virtualbox node2
+docker run -d swarm join --addr $(docker-machine ip node2):2376 zk://192.168.99.100:2181
+eval $(docker-machine env default)
+export DOCKER_HOST=192.168.99.100:3376
+docker info
+docker run -d -P rickfast/hello-oreilly-http
+docker run -d -P rickfast/hello-oreilly-http
+docker run -d -P rickfast/hello-oreilly-http
+######
+
+docker run -d -p 2181:2181 jplock/zookeeper
+docker-machine create -d virtualbox --swarm --swarm-master --swarm-discovery="zk://192.168.99.100:2181/swarm" --engine-opt="cluster-store=zk://192.168.99.100:2181/overlay" --engine-opt="cluster-advertise=eth1:2376" swarm-master
+docker-machine create -d virtualbox --swarm --swarm-master --swarm-discovery="zk://192.168.99.100:2181/swarm" --engine-opt="cluster-store=zk://192.168.99.100:2181/overlay" --engine-opt="cluster-advertise=eth1:2376" node1
+docker-machine create -d virtualbox --swarm --swarm-master --swarm-discovery="zk://192.168.99.100:2181/swarm" --engine-opt="cluster-store=zk://192.168.99.100:2181/overlay" --engine-opt="cluster-advertise=eth1:2376" node2
+eval $(docker-machine env --swarm swarm-master)
+docker network create --driver overlay overlay-net
+docker run --name counter -p 4567:4567 -d --net=overlay-net --env="constraint:node==node1"
+docker run --name redis -d --net=overlay-net --env="constraint:node==node2" redis
+docker ps
+curl http://192.168.99.105:4567   # use ip of node that counter container lives on
+
+## kitematic - can be a useful UI tool
+
+# logging - log drivers
+docker run --log-driver=json-file rickfast/hello-oreilly
+
+
+docker run --name splunk -p 8000:8000 -p 8088:8088 -d outcoldman/splunk:6.3.3
+login to splunk at 192.168.99.100:8000 and create a sourcetype and generate an event collector token or enable tcp input. We used HTTP event collector and configured a token for this example
+docker run --name hello --log-driver=splunk --log-opt splunk-token=72252C6F-1C8F-4134-8D88-E00C932A9AAF --log-opt splunk-url=http://192.168.99.100:8088 --log-opt splunk-sourcetype=docker rickfast/hello-oreilly
