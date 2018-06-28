@@ -8,7 +8,7 @@ once docker machine is installed
 [Docker Doc](https://docs.docker.com/machine/)
 [Docker Machine](https://docs.docker.com/machine/get-started/#create-a-machine)
 
-`
+```
 docker-machine create --driver virtualbox default
 docker-machine ls
 docker-machine env default
@@ -19,7 +19,7 @@ docker-machine stop default             # stops default machine
 docker-machine start default
 docker-machine ip default
 docker-machine rm default
-`
+```
 
 # Compose references
 # https://docs.docker.com/compose/compose-file/#compose-file-structure-and-examples
