@@ -4,11 +4,12 @@ This repository will be used for any docker code
 Template folder contains a base structure for building docker files
 
 ## OS X build a docker machine
+
 once docker machine is installed
 [Docker Doc](https://docs.docker.com/machine/)
 [Docker Machine](https://docs.docker.com/machine/get-started/#create-a-machine)
 
-```
+```shell
 docker-machine create --driver virtualbox default
 docker-machine ls
 docker-machine env default
@@ -21,11 +22,14 @@ docker-machine ip default
 docker-machine rm default
 ```
 
-# Compose references
-# https://docs.docker.com/compose/compose-file/#compose-file-structure-and-examples
+## Compose references
 
-# Ways to make changes / save a container
-# This one is not the best practice
+[Docker Compose](https://docs.docker.com/compose/compose-file/#compose-file-structure-and-examples)
+
+### Ways to make changes / save a container
+
+```shell
+* This one is not the best practice
 * run vm (docker-machine create --driver virtualbox <name of machine>)
 * bind shell to machine (eval $(docker-machine env <name of machine>))
 * ensure machine is started (docker-machine ls
@@ -40,19 +44,27 @@ docker-machine rm default
 * leave containter (exit)
 * save container changes [a sha2 hash will return] (docker commit -m "installed node and wrote average application" <container hostname>
 * run command on new container image (docker run <container sha2 hash> averages/average.js 3 4 5)
+```
 
-# Best practice - Dockerfile
+## Best practice - Dockerfile
+
+```shell
 create Dockerfile
 docker build <name> <dir>   # build from Dockerfile directory and tagging a name [ex. docker build andrewnascimento/test .]
+```
 
-# Helpful
+## Helpful
+
 docker network ls
 docker network create --driver bridge my-network
 
-# bridge networks do not allow container linking (container linking [via --link] is deprecated)
-# there is also overlay network
+- bridge networks do not allow container linking (container linking [via --link] is deprecated)
+- there is also overlay network
 
-# data volumes (the -v will create a local volume for the data to persist through when the container is killed) - sharing volume between containers
+## data volumes
+
+```shell
+the -v will create a local volume for the data to persist through when the container is killed) - sharing volume between containers
 docker run -d -p 5984:5984 -v $(pwd)/data:/usr/local/var/lib/couchdb --name new-couchdb klaemo/couchdb
 
 ## DIDN'T WORK IN EXAMPLE - must be versioning
@@ -65,18 +77,25 @@ docker run -d -p 5985:5984 -v /usr/local/var/lib/couchdb --name db2 --volumes-fr
 curl -X PUT http://192.168.99.100:5984/db
 curl -H 'Content-Type: application/json' -X POST http://192.168.99.100:5984/db -d '{"value": "Hello OReilly"}'
 curl http://192.168.99.100:5985/db/faeed6d7f714f9c140a0d5e98a00049e
-## flocker? 
+## flocker?
+```
 
 ## Docker-compose
+
+```shell
 docker-compose up   # starts all containers controlled by specific compose file
 docker-compose stop # stops all containers controlled by specific compose file
 docker-compose rm   # kills all containers controlled by specific compose file
 docker-compose up -d   # detached start of all containers controlled by specific compose file
+```
 
-# docker-swarm-example
-# swarm
-# Run containers across multiple docker hosts
-# need backing keyvalue storage mechanism to keep track of nodes - console, etcd, zookeeper
+## docker-swarm-example
+
+swarm
+Run containers across multiple docker hosts
+need backing keyvalue storage mechanism to keep track of nodes - console, etcd, zookeeper
+
+```shell
 docker-machine create --driver virtualbox
 eval $(docker-machine env default)
 docker run -d -p 2181:2181 --name zookeeper jplock/zookeeper
@@ -92,8 +111,9 @@ docker info
 docker run -d -P rickfast/hello-oreilly-http
 docker run -d -P rickfast/hello-oreilly-http
 docker run -d -P rickfast/hello-oreilly-http
-######
+```
 
+```shell
 docker run -d -p 2181:2181 jplock/zookeeper
 docker-machine create -d virtualbox --swarm --swarm-master --swarm-discovery="zk://192.168.99.100:2181/swarm" --engine-opt="cluster-store=zk://192.168.99.100:2181/overlay" --engine-opt="cluster-advertise=eth1:2376" swarm-master
 docker-machine create -d virtualbox --swarm --swarm-master --swarm-discovery="zk://192.168.99.100:2181/swarm" --engine-opt="cluster-store=zk://192.168.99.100:2181/overlay" --engine-opt="cluster-advertise=eth1:2376" node1
@@ -104,13 +124,18 @@ docker run --name counter -p 4567:4567 -d --net=overlay-net --env="constraint:no
 docker run --name redis -d --net=overlay-net --env="constraint:node==node2" redis
 docker ps
 curl http://192.168.99.105:4567   # use ip of node that counter container lives on
+```
 
-## kitematic - can be a useful UI tool
+kitematic - can be a useful UI tool
 
-# logging - log drivers
+## logging - log drivers
+
+```shell
 docker run --log-driver=json-file rickfast/hello-oreilly
+```
 
-
+```shell
 docker run --name splunk -p 8000:8000 -p 8088:8088 -d outcoldman/splunk:6.3.3
 login to splunk at 192.168.99.100:8000 and create a sourcetype and generate an event collector token or enable tcp input. We used HTTP event collector and configured a token for this example
 docker run --name hello --log-driver=splunk --log-opt splunk-token=72252C6F-1C8F-4134-8D88-E00C932A9AAF --log-opt splunk-url=http://192.168.99.100:8088 --log-opt splunk-sourcetype=docker rickfast/hello-oreilly
+```
