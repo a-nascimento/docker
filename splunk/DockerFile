@@ -1,0 +1,12 @@
+FROM centos
+LABEL maintainer="andrewnascimento <andrew.nascimento@surveysampling.com>"
+ADD splunk-7.1.0-2e75b3406c5b-linux-2.6-x86_64.rpm splunk-7.1.0-2e75b3406c5b-linux-2.6-x86_64.rpm
+RUN yum update -y
+RUN mkdir /apps/
+RUN rpm -i --prefix=/apps/splunk splunk-7.1.0-2e75b3406c5b-linux-2.6-x86_64.rpm
+RUN usermod splunk -d /apps/splunk
+RUN chown -R splunk:splunk /apps/splunk
+RUN chmod -R 750 /apps/splunk
+RUN rm -rf splunk-7.1.0-2e75b3406c5b-linux-2.6-x86_64.rpm
+RUN printf '\nOPTIMISTIC_ABOUT_FILE_LOCKING = 1' >> /apps/splunk/splunk/etc/splunk-launch.conf
+EXPOSE 8000
